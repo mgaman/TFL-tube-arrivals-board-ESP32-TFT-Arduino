@@ -23,7 +23,7 @@ This class encapsulates the essential data of 1 arrival at a platform, its Platf
 ### Process.cpp
 The incoming data has 4 characteristics of interest, Destination, towards, Time of Arrival (expressed in seconds) and Platform Number.  
 Becauses of the limitations of the display device one has to select which data that can be shown.  One line on screen has space for about 25 characters so I display platform number, destination and time to arrival (in minutes).  
-JSON does not lend itself to sorting so my solution is to make and array of *List*. Each list contains instances of the *Item* class for a single platform. Each list is then sorted by *TimeToStation* and fed to the, final, display stage.
+JSON does not lend itself to sorting so my solution is to make an array of *List*. Each list contains instances of the *Item* class for a single platform. Each list is then sorted by *TimeToStation* and fed to the, final, display stage.
 ### Display.cpp
 Display takes the top number of items in the list and sends them to the display device.  
 Some compromises are in order. A line formatted as Platform Number, Destination and Arrival Time (in minutes) only has about 20 characters to show the Destination. Many destinations in the incoming data are much more verbose e.g. on the Elizabeth Line Heathrow Terminal 4 is shown as <b>Heathrow Terminal 4 Underground Station</b>. By using a substition table I replace that with <b>Heathrow T4</b>
@@ -74,13 +74,14 @@ If *true* then current time is displayed is GMT+1, else GMT.
 
 # First Time Use
 After cloning the project, PlattormIO springs into action to do its magic. This includes loading all the necessary compilation tools used by the declared platform and libraries requested. The libraries have to modified to work for the project.  
-Libraries are loaded to the path <b>Arrivals/.pio/libdeps/board_name</b>. In this project you will see from platform.io that *board_name* is *esp32dev*.
+Libraries are loaded to the path <b>Arrivals/.pio/libdeps/board_name</b>. In this project you will see from platform.io that *board_name* is *esp32dev*.  
+Edit the *Arrivals/data/config.json* file to add the WiFi credentials of your Access Point. Upload to your device as described [here](#updating-the-configjson-file).
 ## TFT_eSPI
 Here we are using the *TFT_eSPI* library from *https://github.com/Bodmer/TFT_eSPI*. Prior to using the library you have to tell which graphics chip is in use and how it is connected. This is done by editing the <b>Arrivals/.pio/libdeps/esp32dev/TFT_eSPI/User_Setup_Select.h</b> file and uncommenting the line appropriate to your hardware. For my board I had to create a new file in <b>Arrivals/.pio/libdeps/esp32dev/User_Setups/Setup400_IL19341_ESP32_HSPI.h</b> and reference it in <b>Arrivals/.pio/libdeps/esp32dev/TFT_eSPI/User_Setup_Select.h</b>.  
 A copy of my file is in the <b>Arrivals/extras</b> folder.  
 NOTE: My experience may not match your choice of board.
 ## List
-Note that after installing this library there is a *main.cpp* source file in <b>Arrivals/.pio/List/src</b> that must be eliminated as its compilation causes linkage problems. Either delete it or rename to *main.txt*
+After installing this library there is a *main.cpp* source file in <b>Arrivals/.pio/List/src</b> that must be eliminated as its compilation causes linkage problems. Either delete it or rename to *main.txt*
 ## TFT_Touch
 This section is NOT applicable to a board where Touch is accessed via SPI. In that case you will need to replace all my touch oriented code by your own code.  
 While the *TFT_eSPI* library contains support for a touch screen it is not applicable to my board as the touch sensor is not wired to be accessed via SPI. Accordingly I have added a facility to *config.json* for setting the numbers of the IO pins.  
@@ -92,7 +93,7 @@ This is a Visual Studio, Platform IO project where compilation options are conta
 - DEBUG Turn on general debugging data. Hopefully not needed.
 # Updating the config.json file
 The classic tool for reading and writing data between an ESP32 and computer is *esptool.py*, however this tool deals with blocks of flash and is not interested whether that block of flash is executable code or SPIFFS data.  
-In Platform.IO *esptool.py* is encapsulated in a user friendly interface to make it easy to create an SPIFFS file system image and upload that image to the ESP32.  
+In Platform.IO *esptool.py* is encapsulated in a user friendly interface to make it easy to create an SPIFFS file system image and upload that image to the ESP32 (but not download it).  
 To modify *config.json* and upload to the ESP32, first edit the file then click on the *PlatformIO* icon to the left of the screen. This displays a range of *Project Tasks*. Click on *Build Filesystem Image* to make a copy of the SPIFFS file system then click on *Upload File System Image* to copy, via USB, to the ESP32 device.  Note that any window currently engaging the USB Serial device must be closed first.
 # Dependencies
 I made use of the delightful [London Underground](https://github.com/petykowski/London-Underground-Dot-Matrix-Typeface) dot matrix font for displaying data. Note that one cannot use the ttf files directly. First they must be converted to a bitmap image via the convertor [here](https://rop.nl/truetype2gfx/).
