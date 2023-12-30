@@ -1,0 +1,153 @@
+{
+    "$type": "Tfl.Api.Presentation.Entities.Prediction, Tfl.Api.Presentation.Entities",
+    //
+    //  WiFi Credentials
+    //
+    "WiFi": {
+        "homessid": "homepassword",
+        "phone hotspot": "*****",
+        "Mums house": "******" 
+    },
+    //
+    // Station(s) to display
+    // defaultStation, index of station to display (origin 0)
+    //      if -1 triggers the selection code upon startup
+    //
+    "stations": [
+        {
+            "Name": "Turnham Green",
+            "ID": "940GZZLUTNG",
+            "PlatformsToDisplay": [1,2,3,4],
+            "rowsPerPlatform": 1
+        },
+        {
+            "Name": "Earls Court",
+            "ID": "940GZZLUECT",
+            "PlatformsToDisplay": [1,2,3,4,5,6],
+            "rowsPerPlatform": 1
+        },
+        {
+            "Name": "Acton Main Line",
+            "ID": "910GACTONML",
+            "PlatformsToDisplay": [3,4],
+            "rowsPerPlatform": 2
+        },
+        {
+            "Name": "Baker Street",
+            "ID": "940GZZLUBST",
+            "PlatformsToDisplay": [3,4,8,9],
+            "rowsPerPlatform": 1
+        },
+        {
+            "Name": "Oxford Circus",
+            "ID": "940GZZLUOXC",
+            "PlatformsToDisplay": [1,2,3,4,5,6],
+            "rowsPerPlatform": 1
+        }        
+    ],
+    "defaultStation": -1,
+    //
+    //  JSON data management
+    //
+    "filterKeys": [
+        "platformName",
+        "destinationName",
+        "timeToStation",
+        "towards"
+    ],
+    "server": "https://api.tfl.gov.uk",
+    "URL": {
+        "formatC": "%s/StopPoint/%s/Arrivals",
+        "formatPython": "{0}/StopPoint/{1}/Arrivals"
+    },
+    "refreshDelaySeconds": 15,
+    "substitutes": {
+        "Aldgate Underground Station":                      "Aldgate",
+        "Arnos Grove Underground Station":                  "Arnos Grove",
+        "Baker Street Underground Station":                 "Baker Street",
+        "Barking Underground Station":                      "Barking",
+        "Cockfosters Underground Station":                  "Cockfosters",
+        "Check Front of Train":                             "See Front of Train",
+        "Ealing Broadway Underground Station":              "Ealing Broadway",
+        "Earl's Court Underground Station":                 "Earls Court",
+        "Edgware Road (Circle Line) Underground Station":   "Edgware Road",
+        "Elephant & Castle Underground Station":            "Elephant & Cst",
+        "Grange Hill via Woodford":                         "Grange Hill-Woodford",
+        "Hainault via Newbury Park":                        "Hainault-Newbury Pk",
+        "Hammersmith (H&C Line) Underground Station":       "Hammersmith",
+        "Harrow & Wealdstone Underground Station":          "Harrow Wldstne",
+        "Hayes & Harlington Rail Station":                  "Hayes/Harl'ton",
+        "Heathrow T123 + 5":                                "Heathrow T123+5",
+        "Heathrow via T4 Loop":                             "Heathrow T4",
+        "Heathrow Terminal 4 Rail Station":                 "Heathrow T4",
+        "Heathrow Terminal 4 Underground Station":          "Heathrow T4",
+        "Heathrow Terminal 5 Rail Station":                 "Heathrow T5",
+        "Heathrow Terminals 2 & 3 Underground Station":     "Heathrow T2-3",
+        "Kensington (Olympia) Underground Station":         "Ken'on Olympia",
+        "London Paddington Rail Station":                   "Paddington",
+        "Northfields Underground Station":                  "Northfields",
+        "Oakwood Underground Station":                      "Oakwood",
+        "Queen's Park Underground Station":                 "Queens Park",
+        "Rayners Lane Underground Station":                 "Rayners Lane",
+        "Richmond Underground Station":                     "Richmond",
+        "Ruislip Underground Station":                      "Ruislip",
+        "Shenfield Rail Station":                           "Shenfield",
+        "Stanmore Underground Station":                     "Stanmore",
+        "Stonebridge Park Underground Station":             "Stonebridge Pk",
+        "Stratford Underground Station":                    "Stratford",
+        "Tower Hill Underground Station":                   "Tower Hill",
+        "Upminster Underground Station":                    "Upminster",
+        "Uxbridge Underground Station":                     "Uxbridge",
+        "Wembley Park Underground Station":                 "Wembley Park",
+        "Wimbledon Underground Station":                    "Wimbledon",
+        "Wood Green Underground Station":                   "Wood Green"
+    },
+    //
+    //  Hardware configurations for RotaryEncoder and TouchScreen 
+    //
+    "TouchScreenPins" : {
+        "DOUT": 39,
+        "DIN":  32, 
+        "DCS":  33,  
+        "DCLK": 25  
+    },
+    //
+    //  display and data logging options
+    //  DST boolean for daylight savings time
+    //
+    "StandardColors": {
+		// JSON does not support hex numbers
+		"TFT_BLACK": "0x0000",
+		"TFT_NAVY": "0x000F",
+		"TFT_DARKGREEN": "0x03E0",
+		"TFT_DARKCYAN": "0x03EF",
+		"TFT_MAROON": "0x7800",
+		"TFT_PURPLE": "0x780F",
+		"TFT_OLIVE": "0x7BE0",
+		"TFT_LIGHTGREY": "0xD69A",
+		"TFT_DARKGREY": "0x7BEF",
+		"TFT_BLUE": "0x001F",
+		"TFT_GREEN": "0x07E0",
+		"TFT_CYAN": "0x07FF",
+		"TFT_RED": "0xF800",
+		"TFT_MAGENTA": "0xF81F",
+		"TFT_YELLOW": "0xFFE0",
+		"TFT_WHITE": "0xFFFF",
+		"TFT_ORANGE": "0xFDA0",
+		"TFT_GREENYELLOW": "0xB7E0",
+		"TFT_PINK": "0xFE19",
+		"TFT_BROWN": "0x9A60",
+		"TFT_GOLD": "0xFEA0",
+		"TFT_SILVER": "0xC618",
+		"TFT_SKYBLUE": "0x867D",        
+		"TFT_VIOLET": "0x915C"
+	},
+    "TEXT_FG_COLOR": "TFT_YELLOW",
+    "TEXT_BG_COLOR": "TFT_BLACK",
+    "SCREEN_COLOR": "TFT_BLACK",
+    "FONT_SIZE": 4,
+    "logRawData": false,
+    "exportJson": true,
+    "NTP_server": "europe.pool.ntp.org",
+    "DST": false
+}

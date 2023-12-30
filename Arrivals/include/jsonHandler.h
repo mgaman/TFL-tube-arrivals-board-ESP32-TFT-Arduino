@@ -1,0 +1,1 @@
+bool jsonHandler(String raw);
