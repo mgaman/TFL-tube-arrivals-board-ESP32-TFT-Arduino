@@ -1,10 +1,9 @@
 {
-    "$type": "Tfl.Api.Presentation.Entities.Prediction, Tfl.Api.Presentation.Entities",
     //
     //  WiFi Credentials
     //
     "WiFi": {
-        "henry": "homepassword",
+        "homessid": "homepassword",
         "phone hotspot": "*****",
         "Mums house": "******" 
     },
@@ -103,7 +102,7 @@
         "Wood Green Underground Station":                   "Wood Green"
     },
     //
-    //  Hardware configurations for RotaryEncoder and TouchScreen 
+    //  Hardware configurations for TouchScreen 
     //
     "TouchScreenPins" : {
         "DOUT": 39,
