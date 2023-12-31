@@ -75,7 +75,9 @@ If *true* then current time is displayed is GMT+1, else GMT.
 # First Time Use
 After cloning the project, PlattormIO springs into action to do its magic. This includes loading all the necessary compilation tools used by the declared platform and libraries requested. The libraries have to modified to work for the project.  
 Libraries are loaded to the path <b>Arrivals/.pio/libdeps/board_name</b>. In this project you will see from platform.io that *board_name* is *esp32dev*.  
-Edit the *Arrivals/data/config.json* file to add the WiFi credentials of your Access Point. Upload to your device as described [here](#updating-the-configjson-file).
+Edit the *Arrivals/data/config.json* file to add the WiFi credentials of your Access Point. Upload to your device as described [here](#updating-the-configjson-file).  
+Also add your station to the *stations* section.  
+It is essential to edit the file correctly as JSON is intolerant of mistakes such as missing commas, quote marks and matching brackets. Before committing your file to the SPIFFS check its correctness. There are lots of validation sites like [this one](https://jsonlint.com/). Embedded comments will cause a problem but [this one](https://jsonformatter.org/) can delete comments before validation.  
 ## TFT_eSPI
 Here we are using the *TFT_eSPI* library from *https://github.com/Bodmer/TFT_eSPI*. Prior to using the library you have to tell which graphics chip is in use and how it is connected. This is done by editing the <b>Arrivals/.pio/libdeps/esp32dev/TFT_eSPI/User_Setup_Select.h</b> file and uncommenting the line appropriate to your hardware. For my board I had to create a new file in <b>Arrivals/.pio/libdeps/esp32dev/User_Setups/Setup400_IL19341_ESP32_HSPI.h</b> and reference it in <b>Arrivals/.pio/libdeps/esp32dev/TFT_eSPI/User_Setup_Select.h</b>.  
 A copy of my file is in the <b>Arrivals/extras</b> folder.  
