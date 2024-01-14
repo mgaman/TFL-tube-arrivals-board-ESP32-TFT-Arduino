@@ -77,6 +77,7 @@ void setup()
         }
         clockInit();  // must be after wifi enabled
         nextGetJson = 0;
+        displayInitFinish();
     }
     else {
         Serial.println("jsonInit failed");
@@ -86,11 +87,9 @@ void setup()
 
 void loop()
 {
-#if 1
     if (millis() > nextGetJson) {
         nextGetJson = millis() + ((unsigned)config["refreshDelaySeconds"]*1000);
         getJSON();
     }
-#endif
     clockUpdate();
 }

@@ -113,3 +113,8 @@ I made a stand to hold my TFT. You can download it from [Thingiverse.](https://w
 - add SD for config.json
 - OTA to update file?
 - Use wifi access point mode to get wifi credentials & store to json.
+# Version History
+## 0.1.1
+Original release.
+## 0.1.2
+Minor cosmetic changes, wrong font used for opening, setup, screens.

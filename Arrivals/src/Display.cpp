@@ -34,7 +34,9 @@ void displayInit()
   sscanf(config["StandardColors"][(const char *)config["TEXT_FG_COLOR"]],"%hx",&TEXT_FG_COLOR);
   sscanf(config["StandardColors"][(const char *)config["TEXT_BG_COLOR"]],"%hx",&TEXT_BG_COLOR);
   tft.setTextColor(TEXT_FG_COLOR, TEXT_BG_COLOR);
-  tft.setFreeFont(&London_Underground_Regular10pt7b);
+  // font 4 for startup screen, change to fancy font later
+  tft.setTextFont(4);
+//  tft.setFreeFont(&London_Underground_Regular10pt7b);
   tft.fillScreen(SCREEN_BACKGROUND_COLOR);
   bottomLine.createSprite(tft.width(), LINE_HEIGHT);
   bottomLine.setTextColor(TEXT_FG_COLOR, TEXT_BG_COLOR);
@@ -42,6 +44,10 @@ void displayInit()
   displayClear();
 }
 
+void displayInitFinish() {
+  // finish with free font 5
+  tft.setFreeFont(&London_Underground_Regular10pt7b);
+}
 /// @brief
 /// @param l
 /// @param r
