@@ -69,9 +69,7 @@ void displayClear()
 {
     tft.fillScreen(SCREEN_BACKGROUND_COLOR);
     tft.setTextColor(TEXT_FG_COLOR, TEXT_BG_COLOR);
-    int l = tft.textWidth((const char *)config["stations"][defaultStation]["Name"]);
-    tft.drawString((const char *)config["stations"][defaultStation]["Name"],(tft.width() - l)/2,0);
-    rowNumber = 1;
+    rowNumber = 1;  // skip over title line
 }
 
 /// @brief Check if one of the paramaters has a shortened version

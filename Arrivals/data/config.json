@@ -3,10 +3,13 @@
     //  WiFi Credentials
     //
     "WiFi": {
-        "homessid": "homepassword",
-        "phone hotspot": "*****",
-        "Mums house": "******" 
+        "SSID": "PASSWORD",
+        "henryx": "9876543210"
     },
+    "WiFiTimeout": 10, // seconds
+    "hostName": "Arrivals",
+    "accessPointName": "Arrivals",
+    "accessPointPassword": "password",
     //
     // Station(s) to display
     // defaultStation, index of station to display (origin 0)

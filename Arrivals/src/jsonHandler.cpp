@@ -96,3 +96,21 @@ bool jsonInit(fs::FS &fs, const char *path)
     return rc;
 }
 
+bool jsonUpdateCredentials(const char *ssid,const char *pwd) {
+    bool rc = false;
+    config["WiFi"][ssid] = pwd;
+//#ifdef DEBUG
+    serializeJsonPretty(config["WiFi"],Serial);
+//#endif
+    File file = SPIFFS.open("/config.json","w");
+    if (serializeJson(config,file) < 1) {
+        Serial.println("Serialize failed");
+    }
+    else {
+//#ifdef DEBUG
+        Serial.println("Serialize pass");
+//#endif        
+        rc = true;
+    }
+    return rc;
+}

@@ -44,6 +44,7 @@ bool getJSON()
 
 void setup()
 {
+    char message[30];
     Serial.begin(115200);
     delay(1000);
     Serial.println();
@@ -53,20 +54,23 @@ void setup()
     }
     if (jsonInit(SPIFFS,"/config.json")) {
         displayInit();   // must be AFTER jsonInit
-        defaultStation = config["defaultStation"];
-        if (defaultStation < 0)
-            defaultStation = selectDefaultStation();
-        // create the URL
-        sprintf(URL,(const char *)config["URL"]["formatC"],(const char *)config["server"], (const char *)config["stations"][defaultStation]["ID"]);
-#ifdef DEBUG
-        Serial.println(URL);
-#endif
         if (wifiInit()) {
             if (!wifiConnect()) {
                 Serial.println("Failed to connect to WiFi");
                 displayClear();
-                addLine(0,1,"Failed to connect to WiFi",false);
-                while (true);
+                addLine(0,1,"Failed to connect to WiFi",true);
+                addLine(0,2,"Connect to access point",true);
+                addLine(0,3,(const char *)config["accessPointName"],true);
+                if (wifiManage()) {
+                    delay(2000); // time to read message
+                    displayClear();
+                }
+                else
+                    while(true);
+            }
+            else { 
+                delay(2000);   // time to see message
+                displayClear();
             }
         }
         else {
@@ -75,6 +79,14 @@ void setup()
             addLine(0,1,"No WiFi available",false);
             while (true) {}
         }
+        defaultStation = config["defaultStation"];
+        if (defaultStation < 0)
+            defaultStation = selectDefaultStation();
+        // create the URL
+        sprintf(URL,(const char *)config["URL"]["formatC"],(const char *)config["server"], (const char *)config["stations"][defaultStation]["ID"]);
+#ifdef DEBUG
+        Serial.println(URL);
+#endif
         clockInit();  // must be after wifi enabled
         nextGetJson = 0;
         displayInitFinish();

@@ -65,6 +65,8 @@ void processAll()
   }
 
   displayClear();
+  addLine(0,0,(const char *)config["stations"][defaultStation]["Name"],true);
+
   // send unsorted list (per platform)
   for (int item = 0; item < numItems; item++)
     displayItem(&li[item]);

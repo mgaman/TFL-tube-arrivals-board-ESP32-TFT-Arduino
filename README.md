@@ -8,7 +8,8 @@ While my initial attempt was achieved quickly I soon realised that the correct a
 No data is hard wired into the code, no wifi credentials, station ID's, screen sizes etc. All is contained in a JSON file stored externally to the code.  
 My solution was developed on an ESP32 development board. These are widely available, provide WiFi connectivity, ample RAM and flash memory and cheap. It should be feasible to repeat this project on a similar board like Raspberry Pi Zero W or Pico W.  
 My screen is an 240x320 TFT powered by an IL19341 chip. Your device may be different. Read the [TFT](#tft) section below.  
-This project is a variation of my previous [LCD 2004A](https://github.com/mgaman/TFL-tube-arrivals-board-ESP32-Arduino) project. By swapping the LCD/Rotary Encoder/ESP32/External power supply with an integrated TFT/Touch/ESP32 setup I greatly simplified the process by eliminating all wiring and gaining more space to display information.
+This project is a variation of my previous [LCD 2004A](https://github.com/mgaman/TFL-tube-arrivals-board-ESP32-Arduino) project. By swapping the LCD/Rotary Encoder/ESP32/External power supply with an integrated TFT/Touch/ESP32 setup I greatly simplified the process by eliminating all wiring and gaining more space to display information.  
+Please read whats new in [each version](#version-history).
 ## Architecture
 ### main.cpp
 Initialises the system and periodically accesses TFL to retrieve fresh data.
@@ -109,12 +110,31 @@ I made a stand to hold my TFT. You can download it from [Thingiverse.](https://w
 - Platform numbers are expressed as verbose text e.g "Eastbound Platform 6". To extracting the number I skip all non-digits until arriving at the first digit and converting from there. So far this has worked without problems.  
 - Time To Arrival is expressed in seconds, I convert this to minutes and round down.
 - Screen Flicker. I tried to implement a TFT_sprite for 6 lines (180*320 pixels) of data to avoid clearing the entire screen but this caused memory allocation problems.
+## WiFi Connection Problems
+ESP32 works in the 2.4GHz band so will not connect to an access point broadcasting in the 5GHz band. In my experience most home WiFi routers work simultaneously in both bands 
+whereas a mobile phone hotspot does not.  
+For IOS devices (iPad, iPhone) the Hotspot must be in Compatability Mode to work at 2.4MHz.
+## Web Based Interface for WiFi Credentials
+From version 0.1.3 it is not necessary to physically edit the *config.json* file to add wifi credentials. In the event that connecting to WiFi fails, a WiFi access point is started up and the user prompted to connect to it (no password needed).
+<p align="center"><img src="images/IMG_0014.jpg"></p>
+Upon entering the access point this screen is presented.<br><br>
+<p align="center"><img src="images/IMG_0010.PNG"></p>
+Hit the <b>Configure WiFi</b> button to get the next page. Here you are given a list of visible access points and a form to complete.<br><br>
+<p align="center"><img src="images/IMG_0011.PNG"></p>
+Select the desired SSID, add its password and hit the <b>Save</b> button.<br><br>
+<p align="center"><img src="images/IMG_0012.PNG"></p>
+If successful, the credentials are saved to the <i>config.json</i> file and can be used in future connections.<br><br>  
+<p align="center"><img src="images/IMG_0016.jpg"></p>
+
 ## ToDo
-- add SD for config.json
-- OTA to update file?
-- Use wifi access point mode to get wifi credentials & store to json.
+- ~~add SD for config.json~~
+- ~~OTA to update file?~~
+- ~~Use wifi access point mode to get wifi credentials & store to json. DONE v 0.1.3~~
+- Implement a web interface for updating station data.
 # Version History
 ## 0.1.1
 Original release.
 ## 0.1.2
 Minor cosmetic changes, wrong font used for opening, setup, screens.
+## 0.1.3
+Added access point mode for adding WiFi credentials. Read about it [here](#web-based-interface-for-wifi-credentials).
