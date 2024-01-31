@@ -1,6 +1,6 @@
-<p align="center"><img src="images/select_station.jpg"></p>
-<p align="center"><img src="images/4_line.jpg"></p>
-<p align="center"><img src="images/6_line.jpg"></p>
+<p align="center"><img width="50%" src="images/select_station.jpg"></p>
+<p align="center"><img width="50%" src="images/4_line.jpg"></p>
+<p align="center"><img width="50%" src="images/6_line.jpg"></p>
 
 # Introduction
 This projects retrieves publically available data from [Transport For London](https://api-portal.tfl.gov.uk/apis), parses the relevant data and displays it on a TFT screen.  
@@ -10,7 +10,7 @@ My solution was developed on an ESP32 development board. These are widely availa
 My screen is an 240x320 TFT powered by an IL19341 chip. Your device may be different. Read the [TFT](#tft) section below.  
 This project is a variation of my previous [LCD 2004A](https://github.com/mgaman/TFL-tube-arrivals-board-ESP32-Arduino) project. By swapping the LCD/Rotary Encoder/ESP32/External power supply with an integrated TFT/Touch/ESP32 setup I greatly simplified the process by eliminating all wiring and gaining more space to display information.  
 Please read whats new in [each version](#version-history).
-## Architecture
+## Software Architecture
 ### main.cpp
 Initialises the system and periodically accesses TFL to retrieve fresh data.
 ### wifi.cpp
@@ -29,13 +29,17 @@ JSON does not lend itself to sorting so my solution is to make an array of *List
 Display takes the top number of items in the list and sends them to the display device.  
 Some compromises are in order. A line formatted as Platform Number, Destination and Arrival Time (in minutes) only has about 20 characters to show the Destination. Many destinations in the incoming data are much more verbose e.g. on the Elizabeth Line Heathrow Terminal 4 is shown as <b>Heathrow Terminal 4 Underground Station</b>. By using a substition table I replace that with <b>Heathrow T4</b>
 ## TFL API
-The URL for getting a block of data (in JSON format) is https://api.tfl.gov.uk/StopPoint/910GACTONML/Arrivals where *910GACTONML* is the Station ID for Acton Town Main Line.  
+The URL for getting a block of data (in JSON format) is https://api.tfl.gov.uk/StopPoint/XXXXXXXX/Arrivals where *XXXXXXXX* is the ID of a station e.g. *910GACTONML* is the ID for Acton Town Main Line.  
 To find the station ID for your station do a search https://api.tfl.gov.uk/StopPoint/Search/xxxxx where *xxxxx* is the name (or partial name) of what you are looking for. Note the search is case insensitive.  
 Scan the returned JSON file for the ID you need. NOTE is the search term is not too specific you will get lots of irrelevant data e.g. you are looking for *Acton Main Line* a search on *acton* will return, amongst other stuff, every bus stop in Acton as well as the ID for Acton Main Line.
 ## Configuration
 The configuration file *config.json* is comprised of the following sections
 ### WiFi
 A list of key:value pairs where *key* is a known SSID and *value* the password to connect to that SSID
+### WiFiTimeout
+The maximum time, in seconds, to allow for a connection to an access point. Alter this if you have a problem.
+### accessPointName
+The name given to the access point descrived [here](#web-based-interface-for-wifi-credentials)
 ### stations
 An array of station objects, each characterised by the following key:value pairs.
 - Name   Displayed at the top of the screen. Also seen in the *station select* dialog.
@@ -67,7 +71,7 @@ Define the text foreground & background colors and the screen fill color. See th
 ### logRawData
 If true, writes all incoming JSON data to Serial.
 ### exportJson
-If *true*, writes the contents of *config.json* to Serial. Note that this is the only real way of downloading the contents of the file.
+If *true*, writes the contents of *config.json* to Serial. Note that this is the only real way of downloading the contents of the file, which may have been altered [here](#web-based-interface-for-wifi-credentials).
 ### NTP_server
 The URL of the server for getting the current time.
 ### DST
@@ -77,7 +81,7 @@ If *true* then current time is displayed is GMT+1, else GMT.
 This project was developed under Visual Studio Code using the PlatformIO extension. It is assumed that you know how to install and use this IDE.  
 After cloning the project, PlattormIO springs into action to do its magic. This includes loading all the necessary compilation tools used by the declared platform and libraries requested. The libraries have to modified to work for the project.  
 Libraries are loaded to the path <b>Arrivals/.pio/libdeps/board_name</b>. In this project you will see from platform.io that my *board_name* is *esp32dev*.  Your board may differ.  
-Edit the *Arrivals/data/config.json* file to add the WiFi credentials of your Access Point. Also add your station to the *stations* section.  
+Edit the *Arrivals/data/config.json* file. You may enter the WiFi credentials of your Access Point here or later [via this](#web-based-interface-for-wifi-credentials). Also add your station(s) to the *stations* section.  
 Upload to your device as described [here](#updating-the-configjson-file).    
 It is essential to edit the file correctly as JSON is intolerant of mistakes such as missing commas, quote marks and matching brackets. Before committing your file to the SPIFFS check its correctness. There are lots of validation sites like [this one](https://jsonlint.com/). Embedded comments will cause a problem but [this one](https://jsonformatter.org/) can delete comments before validation.  
 ## TFT_eSPI
@@ -89,7 +93,7 @@ After installing this library there is a *main.cpp* source file in <b>Arrivals/.
 ## TFT_Touch
 This section is NOT applicable to a board where Touch is accessed via SPI. In that case you will need to replace all my touch oriented code by your own code.  
 While the *TFT_eSPI* library contains support for a touch screen it is not applicable to my board as the touch sensor is not wired to be accessed via SPI. Accordingly I have added a facility to *config.json* for setting the numbers of the IO pins.  
-Note the calibration line in *Display.cpp line 351*. Those values were determined by running the *TFT_Touch_Calibrate_v2* example in the library. You will need to do the same for your hardware.
+Note the calibration line in *Display.cpp line 355*. Those values were determined by running the *TFT_Touch_Calibrate_v2* example in the library. You will need to do the same for your hardware.
 # Compilation
 This is a Visual Studio, Platform IO project where compilation options are contained in the *platformio.ini* file, section *build_flags*.  
 - CONFIG_SIZE=nnn FILTER_SIZE=nnn DOC_SIZE=nnn. These affect memory allocated for JSON objects config,filter and doc. The default values here should suffice. The only time you probably need to make a change is for DOC. My default value of 4500 is sufficient for busy Oxford Circus with 6 platforms but there may be a station out there that needs more. To make an estimate get a block of JSON from a station and visit [here](https://arduinojson.org/v6/assistant/#/step1). This will give an indications of the space needed for unfiltered data. In my experience filtering reduces that by a factor of 8.
@@ -98,11 +102,15 @@ This is a Visual Studio, Platform IO project where compilation options are conta
 # Updating the config.json file
 The classic tool for reading and writing data between an ESP32 and computer is *esptool.py*, however this tool deals with blocks of flash and is not interested whether that block of flash is executable code or SPIFFS data.  
 In Platform.IO *esptool.py* is encapsulated in a user friendly interface to make it easy to create an SPIFFS file system image and upload that image to the ESP32 (but not download it).  
-To modify *config.json* and upload to the ESP32, first edit the file then click on the *PlatformIO* icon to the left of the screen. This displays a range of *Project Tasks*. Click on *Build Filesystem Image* to make a copy of the SPIFFS file system then click on *Upload File System Image* to copy, via USB, to the ESP32 device.  Note that any window currently engaging the USB Serial device must be closed first.
+To modify *config.json* and upload to the ESP32, first edit the file then click on the <img width="20px" src="images/platformiobrown.svg"> *PlatformIO* icon to the left of the screen. This displays a range of *Project Tasks*. Click on *Build Filesystem Image* to make a copy of the SPIFFS file system then click on *Upload File System Image* to copy, via USB, to the ESP32 device.  Note that any window currently engaging the USB Serial device must be closed first.
 # Dependencies
-I made use of the delightful [London Underground](https://github.com/petykowski/London-Underground-Dot-Matrix-Typeface) dot matrix font for displaying data. Note that one cannot use the ttf files directly. First they must be converted to a bitmap image via the convertor [here](https://rop.nl/truetype2gfx/).
+- I made use of the delightful [London Underground](https://github.com/petykowski/London-Underground-Dot-Matrix-Typeface) dot matrix font for displaying data. Note that one cannot use the ttf files directly. First they must be converted to a bitmap image via the convertor [here](https://rop.nl/truetype2gfx/).  
+- [WiFi Manager](https://github.com/tzapu/WiFiManager) by tzapu is an invaluable addition to any WiFi based project. No need for hard wired credentials anymore.  
+- [TFT](https://github.com/Bodmer/TFT_eSPI) support by Bodmer makes handling a TFT screen and Touch support so much easier. Lots of graphics chips and screen sizes are supported.  
+- [Arduino List](https://github.com/nkaaf/Arduino-List) by nkaaf is a convenient if you need to sort a list of data. Probably overkill for the amount of data I handle here but I prefer an elegant solution if available.  
+- [ArduinoJson](https://github.com/bblanchon/ArduinoJson). Couldn't have done this without you. 
 # TFT
-Choosing a TFT+Touch device is not for the faint-hearted. Sites like *AliExpress* offer dozens of options which probably all work well. However documentation is often sparse, if at all.  The device [I bought](https://www.aliexpress.us/item/3256805429758720.html?spm=a2g0o.order_list.order_list_main.29.2dd51802zkuPcO&gatewayAdapt=4itemAdapt) was an integrated ESP32/IL1934/XPT2046 device. While the IL19341 chip is supported by the TFT_eSPI library it is unusually wired to the ESP32 HSPI bus rather than the usual VSPI bus, so I needed to construct a configuration file. Next the XPT2046 is not wired to the SPI bus so I could not use TFT_eSPI Touch support. Instead I had to use TFT_Touch.
+Choosing a TFT+Touch device is not for the faint-hearted. Sites like *AliExpress* offer dozens of options which probably all work well. However documentation is often sparse, if at all. [I bought](https://www.aliexpress.us/item/3256805429758720.html?spm=a2g0o.order_list.order_list_main.29.2dd51802zkuPcO&gatewayAdapt=4itemAdapt) an integrated ESP32/IL1934/XPT2046 device. While the IL19341 chip is supported by the TFT_eSPI library it is unusually wired to the ESP32 HSPI bus rather than the usual VSPI bus, so I needed to construct a configuration file. Note the XPT2046 is not wired to the SPI bus so I could not use TFT_eSPI Touch support. Instead I had to use TFT_Touch.
 ## TFT Stand
 I made a stand to hold my TFT. You can download it from [Thingiverse.](https://www.thingiverse.com/thing:6408132)
 # Issues 
@@ -110,21 +118,23 @@ I made a stand to hold my TFT. You can download it from [Thingiverse.](https://w
 - Platform numbers are expressed as verbose text e.g "Eastbound Platform 6". To extracting the number I skip all non-digits until arriving at the first digit and converting from there. So far this has worked without problems.  
 - Time To Arrival is expressed in seconds, I convert this to minutes and round down.
 - Screen Flicker. I tried to implement a TFT_sprite for 6 lines (180*320 pixels) of data to avoid clearing the entire screen but this caused memory allocation problems.
+- Cessation of incoming data. This appears to vary from station to station and is probably related to fragmentation of memory available for dynamic allocation. Right now the only solution that
+I can offer is some kind of timeout mechanism forcing a restart.
 ## WiFi Connection Problems
 ESP32 works in the 2.4GHz band so will not connect to an access point broadcasting in the 5GHz band. In my experience most home WiFi routers work simultaneously in both bands 
 whereas a mobile phone hotspot does not.  
 For IOS devices (iPad, iPhone) the Hotspot must be in Compatability Mode to work at 2.4MHz.
 ## Web Based Interface for WiFi Credentials
 From version 0.1.3 it is not necessary to physically edit the *config.json* file to add wifi credentials. In the event that connecting to WiFi fails, a WiFi access point is started up and the user prompted to connect to it (no password needed).
-<p align="center"><img src="images/IMG_0014.jpg"></p>
+<p align="center"><img width="50%"src="images/IMG_0014.jpg"></p>
 Upon entering the access point this screen is presented.<br><br>
-<p align="center"><img src="images/IMG_0010.PNG"></p>
+<p align="center"><img width="50%" src="images/IMG_0010.PNG"></p>
 Hit the <b>Configure WiFi</b> button to get the next page. Here you are given a list of visible access points and a form to complete.<br><br>
-<p align="center"><img src="images/IMG_0011.PNG"></p>
+<p align="center"><img width="50%" src="images/IMG_0011.PNG"></p>
 Select the desired SSID, add its password and hit the <b>Save</b> button.<br><br>
-<p align="center"><img src="images/IMG_0012.PNG"></p>
+<p align="center"><img width="50%" src="images/IMG_0012.PNG"></p>
 If successful, the credentials are saved to the <i>config.json</i> file and can be used in future connections.<br><br>  
-<p align="center"><img src="images/IMG_0016.jpg"></p>
+<p align="center"><img width="50%" src="images/IMG_0016.jpg"></p>
 
 ## ToDo
 - ~~add SD for config.json~~

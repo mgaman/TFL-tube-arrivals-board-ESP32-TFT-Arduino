@@ -3,8 +3,7 @@
     //  WiFi Credentials
     //
     "WiFi": {
-        "SSID": "PASSWORD",
-        "henryx": "9876543210"
+        "SSID": "PASSWORD"
     },
     "WiFiTimeout": 10, // seconds
     "hostName": "Arrivals",
