@@ -139,7 +139,7 @@ Hit the <b>Configure WiFi</b> button to get the next page. Here you are given a 
 Select the desired SSID, add its password and hit the <b>Save</b> button.<br><br>
 <p align="center"><img width="50%" src="images/IMG_0012.PNG"></p>
 If successful, the credentials are saved to the <i>config.json</i> file and can be used in future connections.<br><br>  
-<p align="center"><img width="50%" src="images/IMG_0016.jpg"></p>
+<p align="center"><img width="50%" src="images/IMG_0070.jpg"></p>
 
 ## ToDo
 - Implement a web interface for updating station data.  
