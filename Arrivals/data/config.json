@@ -44,6 +44,12 @@
             "ID": "940GZZLUOXC",
             "PlatformsToDisplay": [1,2,3,4,5,6],
             "rowsPerPlatform": 1
+        },        
+        {
+            "Name": "Kings Cross",
+            "ID": "940GZZLUKSX",
+            "PlatformsToDisplay": [3,4,5,6,7,8],
+            "rowsPerPlatform": 1
         }        
     ],
     "defaultStation": -1,
@@ -58,10 +64,10 @@
     ],
     "server": "https://api.tfl.gov.uk",
     "URL": {
-        "formatC": "%s/StopPoint/%s/Arrivals",
-        "formatPython": "{0}/StopPoint/{1}/Arrivals"
+        "formatC": "%s/StopPoint/%s/Arrivals"
     },
-    "refreshDelaySeconds": 15,
+    "refreshDelaySeconds": 30,
+    "httpRetries": 5,
     "substitutes": {
         "Aldgate Underground Station":                      "Aldgate",
         "Arnos Grove Underground Station":                  "Arnos Grove",
@@ -104,14 +110,19 @@
         "Wood Green Underground Station":                   "Wood Green"
     },
     //
-    //  Hardware configurations for TouchScreen 
+    //  Hardware configurations for TouchScreen 2.8"
+    //  NOT using SPI
     //
     "TouchScreenPins" : {
         "DOUT": 39,
         "DIN":  32, 
         "DCS":  33,  
-        "DCLK": 25  
+        "DCLK": 25,
+        "DIRQ": 36  
     },
+    // ran calibration example from TFT_Touch or TFT_eSPI
+    "touchCalibration" : [526, 3504, 784, 3557, 320, 240, 1],   // 2.8" TFT_Touch code
+    //"touchCalibration" :  [ 372, 3496, 278, 3539, 3],            // 3.2" TFT_eSPI
     //
     //  display and data logging options
     //  DST boolean for daylight savings time

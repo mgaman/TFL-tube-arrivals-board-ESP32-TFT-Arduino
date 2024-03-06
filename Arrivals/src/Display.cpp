@@ -4,15 +4,25 @@
 #include "Item.h"
 #include <TFT_eSPI.h>
 #include <TFT_eWidget.h> // Widget library
+#ifdef TFT_TOUCH
 #include <TFT_Touch.h>
+#endif
 #include "Adafruit_GFX.h"
+#include <CheckBoxWidget.h>
 #include "display.h"
+#include "jsonHandler.h"
 #include "London_Underground_Regular10pt7b.h"
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite bottomLine = TFT_eSprite(&tft);
 //TFT_eSprite trainData = TFT_eSprite(&tft);
+#ifdef TFT_TOUCH
+TFT_Touch  touch = TFT_Touch(16,16,16,16); // just a placeholder, put unused GPIO
+#endif
+
 extern DynamicJsonDocument config;
+extern bool configUpdated;
+
 
 uint16_t SCREEN_BACKGROUND_COLOR;
 uint16_t TEXT_FG_COLOR;
@@ -35,17 +45,34 @@ void displayInit()
   sscanf(config["StandardColors"][(const char *)config["TEXT_BG_COLOR"]],"%hx",&TEXT_BG_COLOR);
   tft.setTextColor(TEXT_FG_COLOR, TEXT_BG_COLOR);
   // font 4 for startup screen, change to fancy font later
-  tft.setTextFont(4);
+  tft.setTextFont(config["FONT_SIZE"]);
 //  tft.setFreeFont(&London_Underground_Regular10pt7b);
   tft.fillScreen(SCREEN_BACKGROUND_COLOR);
   bottomLine.createSprite(tft.width(), LINE_HEIGHT);
   bottomLine.setTextColor(TEXT_FG_COLOR, TEXT_BG_COLOR);
   bottomLine.fillSprite(SCREEN_BACKGROUND_COLOR);
   displayClear();
+
+#ifdef TFT_TOUCH
+  byte DCS = config["TouchScreenPins"]["DCS"];
+  byte DCLK = config["TouchScreenPins"]["DCLK"];
+  byte DIN = config["TouchScreenPins"]["DIN"];
+  byte DOUT = config["TouchScreenPins"]["DOUT"];
+  touch = TFT_Touch(DCS, DCLK, DIN, DOUT);
+  touch.setCal( config["touchCalibration"][0],config["touchCalibration"][1],config["touchCalibration"][2],config["touchCalibration"][3],
+                config["touchCalibration"][4],config["touchCalibration"][5],config["touchCalibration"][6]); // calibrated my screen
+#endif
+#ifdef TOUCH_SPI
+  uint16_t calData[5];
+  for (int k=0;k<5;k++)
+    calData[k] = config["touchCalibration"][k];
+  tft.setTouch(calData);
+#endif
+
 }
 
 void displayInitFinish() {
-  // finish with free font 5
+  // move to nicer font
   tft.setFreeFont(&London_Underground_Regular10pt7b);
 }
 /// @brief
@@ -154,10 +181,12 @@ void addLine(int col, int row, const char *text, bool centered = false)
 
 #define BUTTON_W 100 // needed in several functions
 #define BUTTON_H 50
+#define CB_SIDE 40
 
 ButtonWidget btnL = ButtonWidget(&tft); // need to be global
 ButtonWidget btnR = ButtonWidget(&tft);
 ButtonWidget btnC = ButtonWidget(&tft);
+CheckBoxWidget defaultCB = CheckBoxWidget(&tft);
 // Create an array of button instances to use in for() loops
 // This is more useful where large numbers of buttons are employed
 ButtonWidget *btn[] = {&btnL, &btnR, &btnC};
@@ -316,7 +345,7 @@ void btnC_releaseAction(void)
     }
   }
 }
-
+/// @brief  Init buttons and checkbox
 void initButtons()
 {
   // 3 buttons in a row along the bottom
@@ -338,21 +367,19 @@ void initButtons()
   btnC.setPressAction(btnC_pressAction);
   btnC.setReleaseAction(btnC_releaseAction);
   btnC.drawSmoothButton(false, 3, SCREEN_BACKGROUND_COLOR);
+
+  // place checkbox above buttons and to the left
+  x = 10;
+  y = tft.height() - BUTTON_H - 10 - (CB_SIDE*2);
+  defaultCB.initCheckBox(x,y,CB_SIDE,TFT_WHITE,TFT_BLACK,TFT_YELLOW,TFT_BLACK,"set sta",1);
+  defaultCB.drawCheckBox("set station as default");
 }
 
 int touchHandler()
 {
   /* Create an instance of the touch screen library */
-  //byte DCS, DCLK, DIN, DOUT;
-  //getTouchScreenPins(&DCS, &DCLK, &DIN, &DOUT);
-  byte DCS = config["TouchScreenPins"]["DCS"];
-  byte DCLK = config["TouchScreenPins"]["DCLK"];
-  byte DIN = config["TouchScreenPins"]["DIN"];
-  byte DOUT = config["TouchScreenPins"]["DOUT"];
-  TFT_Touch touch = TFT_Touch(DCS, DCLK, DIN, DOUT);
 // 1bpp Sprites are economical on memory but slower to render
 #define COLOR_DEPTH 1                              // Colour depth (1, 8 or 16 bits per pixel)
-  touch.setCal(526, 3504, 784, 3557, 320, 240, 1); // calibrated my screen
   banner.setColorDepth(COLOR_DEPTH);
   banner.createSprite(tft.width(), 20);
   banner.fillSprite(SCREEN_BACKGROUND_COLOR);
@@ -375,14 +402,22 @@ int touchHandler()
     if (millis() - scanTime >= 50)
     {
       // Pressed will be set true if there is a valid touch on the screen
+#ifdef TFT_TOUCH
       bool pressed = touch.Pressed();
+#endif
+#ifdef TOUCH_SPI
+  // Pressed will be set true is there is a valid touch on the screen
+      bool pressed = tft.getTouch(&t_x, &t_y);
+#endif
       scanTime = millis();
       for (uint8_t b = 0; b < buttonCount; b++)
       {
         if (pressed)
         {
-          int t_x = touch.X();
-          int t_y = touch.Y();
+#ifdef TFT_TOUCH
+          t_x = touch.X();
+          t_y = touch.Y();
+#endif
           if (btn[b]->contains(t_x, t_y))
           {
             btn[b]->press(true);
@@ -395,7 +430,13 @@ int touchHandler()
           btn[b]->releaseAction();
         }
       }
+      if (pressed && defaultCB.contains(t_x,t_y))
+        defaultCB.press();
     }
+  }
+  if (defaultCB.checked()) {
+    config["defaultStation"] = stationIndex;
+    configUpdated = true;
   }
   return stationIndex;
 }
@@ -414,8 +455,16 @@ void displayBottomLine(const char *text, bool centered)
 
 int selectDefaultStation()
 {
-  int selected = -1;
-  selected = touchHandler();
-  addLine(0, 1, "Selected", true);
+  int selected = config["defaultStation"];
+#ifdef TFT_TOUCH
+  bool pressed = touch.Pressed();
+#elif defined (TOUCH_SPI)
+  uint16_t x,y;
+  bool pressed = tft.getTouch(&x,&y);
+#endif
+  if (pressed || selected == -1) {
+    selected = touchHandler();
+    addLine(0, 1, "Selected", true);
+  }
   return selected;
 }

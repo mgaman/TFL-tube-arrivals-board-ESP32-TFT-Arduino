@@ -9,6 +9,8 @@ extern DynamicJsonDocument doc;
 extern DynamicJsonDocument config;
 extern int defaultStation;
 
+unsigned long lastUpdate;
+
 void displayItem(List<Item> *pLI);
 
 /***
@@ -18,6 +20,7 @@ void displayItem(List<Item> *pLI);
  */
 void processAll()
 {
+  lastUpdate = millis();
   // make a list for each platform
   int numItems =  config["stations"][defaultStation]["PlatformsToDisplay"].size();
   List<Item> li[numItems];
@@ -66,7 +69,6 @@ void processAll()
 
   displayClear();
   addLine(0,0,(const char *)config["stations"][defaultStation]["Name"],true);
-
   // send unsorted list (per platform)
   for (int item = 0; item < numItems; item++)
     displayItem(&li[item]);

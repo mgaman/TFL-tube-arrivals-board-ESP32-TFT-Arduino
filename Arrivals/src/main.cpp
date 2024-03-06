@@ -3,6 +3,7 @@
 #include <HTTPClient.h>
 #include <FS.h>
 #include <SPIFFS.h>
+#include <esp_task_wdt.h>
 #include "jsonHandler.h"
 #include "wifi.h"
 #include "display.h"
@@ -11,34 +12,40 @@
 bool jsonInit(fs::FS &fs,const char *path);
 extern DynamicJsonDocument config;
 int defaultStation;   // global value
+extern unsigned long lastUpdate;
 
 #define FORMAT_SPIFFS_IF_FAILED true
 char URL[100];
 uint32_t nextGetJson;
+bool configUpdated = false;
 
 HTTPClient client;
 bool getJSON()
 {
     bool rc = false;
+    char message[30];
+    int attempts = config["httpRetries"];
+    client.useHTTP10(true);   // ESSENTIAL else getStream() wont work
     client.begin(URL);
     // http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-    String payload = emptyString;
     int httpCode = HTTP_CODE_OK + 1;  // i.e. not OK
-    while (httpCode != HTTP_CODE_OK && payload.isEmpty()) {
+    while (attempts && (httpCode != HTTP_CODE_OK)) {
         httpCode = client.GET();
         if (httpCode == HTTP_CODE_OK) {
-            payload = client.getString();
-            rc = jsonHandler(payload);
-            client.end();
+            rc = jsonHandler();
         }
         else
         {
             Serial.printf("[HTTP] GET... failed, error: %s\n", client.errorToString(httpCode).c_str());
             displayClear();
             addLine(0,1,"Missing Data", true);
+            sprintf(message,"Elapsed %lu",lastUpdate/1000);
+            addLine(0,2,message,true);
             delay(1000);  // try again
+            attempts--;
         }
     }
+    client.end();
     return rc;
 }
 
@@ -79,9 +86,7 @@ void setup()
             addLine(0,1,"No WiFi available",false);
             while (true) {}
         }
-        defaultStation = config["defaultStation"];
-        if (defaultStation < 0)
-            defaultStation = selectDefaultStation();
+        defaultStation = selectDefaultStation();
         // create the URL
         sprintf(URL,(const char *)config["URL"]["formatC"],(const char *)config["server"], (const char *)config["stations"][defaultStation]["ID"]);
 #ifdef DEBUG
@@ -90,6 +95,18 @@ void setup()
         clockInit();  // must be after wifi enabled
         nextGetJson = 0;
         displayInitFinish();
+        if (configUpdated) {
+            if (jsonWriteback())
+                Serial.println("json updated");
+            else {
+                Serial.println("json update faiuled");
+                displayClear();
+                addLine(0,1,"JSON update failed",false);
+            }
+        }
+        // set up watchdog
+        esp_task_wdt_init((int)config["refreshDelaySeconds"]*2, true); //enable panic so ESP32 restarts
+        esp_task_wdt_add(NULL); //add current thread to WDT watch
     }
     else {
         Serial.println("jsonInit failed");
@@ -101,7 +118,12 @@ void loop()
 {
     if (millis() > nextGetJson) {
         nextGetJson = millis() + ((unsigned)config["refreshDelaySeconds"]*1000);
-        getJSON();
+        if (!getJSON()) {
+            Serial.printf("getJSON failed elapsed %lu\r\n",millis()/1000);
+            nextGetJson = 0;  // force retry now     
+        }
+        else
+            esp_task_wdt_reset();
     }
     clockUpdate();
 }

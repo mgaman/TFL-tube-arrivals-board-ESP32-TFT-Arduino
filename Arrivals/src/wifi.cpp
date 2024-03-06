@@ -14,6 +14,7 @@ List<AP> aplist;
 extern DynamicJsonDocument config;
 WiFiUDP ntpUDP;
 hw_timer_t *My_timer = NULL;
+extern bool configUpdated;
 
 bool timerTicked = false;
 time_t epoch;
@@ -136,17 +137,15 @@ void clockInit()
 }
 
 char orario[80];
+
 void clockUpdate()
 {
     struct tm timeNow;
     if (timerTicked)
     {
         timerTicked = false;
-        // epoch++;
         memcpy(&timeNow, localtime(&epoch), sizeof(struct tm));
-        //    strftime(orario,80,"%d/%m/%y -- %H:%M:%S", &timeNow);
-        strftime(orario, 80, "%H:%M:%S", &timeNow);
-        //    Serial.println(orario);
+        strftime(orario,80,"%d/%m/%y -- %H:%M:%S", &timeNow);
         displayBottomLine(orario, true);
     }
 }
@@ -185,10 +184,11 @@ bool wifiManage()
         displayClear();
         addLine(0,1,"Add new credentials",true);
         addLine(0,2,wm.getWiFiSSID().c_str(),true);
-        addLine(0,3,wm.getWiFiPass().c_str(),true);
         sprintf(message,"IP: %s",WiFi.localIP().toString().c_str());
         addLine(0,4,message,true);
-        rc = jsonUpdateCredentials(wm.getWiFiSSID().c_str(), wm.getWiFiPass().c_str());
+        config["WiFi"][wm.getWiFiSSID()] = wm.getWiFiPass();
+        rc = true;
+        configUpdated = true;
     }
     return rc;
 }
