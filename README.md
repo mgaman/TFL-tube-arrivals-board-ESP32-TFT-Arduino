@@ -70,6 +70,8 @@ Defines the standard colors included in the TFT_eSPI library
 ### TEXT_FG_COLOR
 ### SCREEN_COLOR
 Define the text foreground & background colors and the screen fill color. See the *StandardColors* section.
+### FONT_NUMBER
+TFT_eSPI includes a number of default fonts indexed by number and those to be loaded into memory are defined in the [TFT_eSPI](#tft_espi) setup file. This font is used for all displays apart from train arrival announcements.
 ### logRawData
 If true, writes all incoming JSON data to Serial.
 ### exportJson

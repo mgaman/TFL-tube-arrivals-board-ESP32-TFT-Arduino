@@ -104,6 +104,10 @@ bool jsonInit(fs::FS &fs, const char *path)
 }
 
 bool jsonWriteback() {
+    bool rc = false;
     File file = SPIFFS.open("/config.json","w");
-    return serializeJson(config,file) >= 0;
+    if (file) {   // does open fail return NULL or -1?
+        rc = serializeJson(config,file) >= 0;
+    }
+    return rc;
 }

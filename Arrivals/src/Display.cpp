@@ -45,7 +45,7 @@ void displayInit()
   sscanf(config["StandardColors"][(const char *)config["TEXT_BG_COLOR"]],"%hx",&TEXT_BG_COLOR);
   tft.setTextColor(TEXT_FG_COLOR, TEXT_BG_COLOR);
   // font 4 for startup screen, change to fancy font later
-  tft.setTextFont(config["FONT_SIZE"]);
+  tft.setTextFont(config["FONT_NUMBER"]);
 //  tft.setFreeFont(&London_Underground_Regular10pt7b);
   tft.fillScreen(SCREEN_BACKGROUND_COLOR);
   bottomLine.createSprite(tft.width(), LINE_HEIGHT);
@@ -211,7 +211,7 @@ void stationUpdate(int x)
 
   // Push Sprite image to the TFT screen at x, y
   banner.fillSprite(SCREEN_BACKGROUND_COLOR);
-  banner.drawCentreString((const char *)config["stations"][stationIndex]["Name"], tft.width() / 2, 0, (int)config["FONT_SIZE"]);
+  banner.drawCentreString((const char *)config["stations"][stationIndex]["Name"], tft.width() / 2, 0, (int)config["FONT_NUMBER"]);
   banner.pushSprite(0, 0); // Plot sprite
 }
 
@@ -446,9 +446,9 @@ void displayBottomLine(const char *text, bool centered)
   // text contains : that london transport font cannot print, so force font 4 here
   bottomLine.fillSprite(SCREEN_BACKGROUND_COLOR);
   if (centered)
-    bottomLine.drawCentreString(text, tft.width() / 2, 0, config["FONT_SIZE"]);
+    bottomLine.drawCentreString(text, tft.width() / 2, 0, config["FONT_NUMBER"]);
   else
-    bottomLine.drawString(text, 0, 0, config["FONT_SIZE"]);
+    bottomLine.drawString(text, 0, 0, config["FONT_NUMBER"]);
   bottomLine.pushSprite(0, 7 * LINE_HEIGHT);
 }
 

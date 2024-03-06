@@ -157,7 +157,7 @@
     "TEXT_FG_COLOR": "TFT_YELLOW",
     "TEXT_BG_COLOR": "TFT_BLACK",
     "SCREEN_COLOR": "TFT_BLACK",
-    "FONT_SIZE": 4,
+    "FONT_NUMBER": 4,
     "logRawData": false,
     "exportJson": true,
     "NTP_server": "europe.pool.ntp.org",
