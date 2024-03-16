@@ -156,3 +156,6 @@ Minor cosmetic changes, wrong font used for opening, setup, screens.
 - Added a checkbox for saving the selected station as the default station. Upon next boot the Select Station screen is skipped. However if you want to select a
 new default station just press on the screen at boot time and keep pressing until the [Select Station](#defaultstation) screen reappears.
 <p align="center"><img width="50%" src="images/IMG_0069.jpg"></p>
+
+## 0.1.4
+- Discovered a clash when compiling the code in the Windows environment. In Linux files names are case sensitive and in Windows case-insensitive. As a result I had to rename "wifi.h" to "WiFiAr.h" to avoid clashing with Arduinos "WiFi.h"

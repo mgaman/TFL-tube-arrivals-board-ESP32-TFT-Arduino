@@ -5,7 +5,7 @@
 #include <SPIFFS.h>
 #include <esp_task_wdt.h>
 #include "jsonHandler.h"
-#include "wifi.h"
+#include "WiFiAr.h"
 #include "display.h"
 
 
