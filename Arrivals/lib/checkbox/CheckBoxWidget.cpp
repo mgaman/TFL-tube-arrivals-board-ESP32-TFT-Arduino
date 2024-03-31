@@ -22,7 +22,7 @@ CheckBoxWidget::CheckBoxWidget(TFT_eSPI *tft)
 /// @param textbg label text background color
 /// @param label Label (8 characters maximum)
 /// @param textsize TFT_eSPI number
-void CheckBoxWidget::initCheckBox(int16_t x1, int16_t y1, uint16_t w, uint16_t outline, uint16_t fill, uint16_t textcolor, uint16_t textbg, const char *label, uint8_t textsize)
+void CheckBoxWidget::initCheckBox(int16_t x1, int16_t y1, uint16_t w, uint16_t outline, uint16_t fill, uint16_t textcolor, uint16_t textbg, const char *label, uint8_t textsize,bool chk)
 {
   _x1 = x1;
   _y1 = y1;
@@ -34,6 +34,7 @@ void CheckBoxWidget::initCheckBox(int16_t x1, int16_t y1, uint16_t w, uint16_t o
   _bgcolor = textbg;
   _textsize = textsize;
   strncpy(_label, label, 9);
+  _checked = chk;
 }
 
 /// @brief Draw the box defined in initCheckBox
@@ -53,6 +54,15 @@ void CheckBoxWidget::drawCheckBox(String long_name)
     {
       _tft->drawString(long_name, _x1 + _w + 2, _y1+(_w/2)-(fh/2));
     }
+  if (_checked) {
+  // if true draw X inside box else clear box (opposite of press())
+    _tft->drawLine(_x1,_y1, _x1+_w,_y1+_w,_textcolor);
+    _tft->drawLine(_x1,_y1+_w,_x1+_w,_y1,_textcolor);
+  }
+  else {
+    _tft->fillRect(_x1, _y1, _w, _w, _fillcolor);  
+    _tft->drawRect(_x1,_y1,_w,_w,_outlinecolor);
+  }
 }
 
 /// @brief  Check of the given point is within the bounds of the CheckBox

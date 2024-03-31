@@ -22,7 +22,7 @@ class CheckBoxWidget : public TFT_eSPI {
  public:
 
   CheckBoxWidget(TFT_eSPI *tft);
-  void     initCheckBox(int16_t x, int16_t y, uint16_t w, uint16_t outline, uint16_t fill, uint16_t textcolor, uint16_t textbg, const char *label, uint8_t textsize);
+  void     initCheckBox(int16_t x, int16_t y, uint16_t w, uint16_t outline, uint16_t fill, uint16_t textcolor, uint16_t textbg, const char *label, uint8_t textsize,bool chk = false);
   void     drawCheckBox( String long_name = "");
   bool     contains(int16_t x, int16_t y);  
   void     press();

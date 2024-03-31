@@ -155,7 +155,10 @@ Minor cosmetic changes, wrong font used for opening, setup, screens.
 - Implemented mechanisms for compiling different hardware configurations i.e ST7789/ILI9341 graphic chips and TFT_eSPI/TFT_Touch touch screen.  
 - Added a checkbox for saving the selected station as the default station. Upon next boot the Select Station screen is skipped. However if you want to select a
 new default station just press on the screen at boot time and keep pressing until the [Select Station](#defaultstation) screen reappears.
-<p align="center"><img width="50%" src="images/IMG_0069.jpg"></p>
+<p align="center"><img width="50%" src="images/IMG_0126.jpg"></p>
 
 ## 0.1.4
 - Discovered a clash when compiling the code in the Windows environment. In Linux files names are case sensitive and in Windows case-insensitive. As a result I had to rename "wifi.h" to "WiFiAr.h" to avoid clashing with Arduinos "WiFi.h"
+## 0.1.5
+- Added a checkbox in the Select Station screen to set, or unset, the Daylight Savings Time flag in *config.json*. This involved modifying the *CheckBoxWidget* code to set the initial setting of Checked/Not Checked.
+- Renamed *WiFiAr..cpp* to *WiFiAr.cpp*.

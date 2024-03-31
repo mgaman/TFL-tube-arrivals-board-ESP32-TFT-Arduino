@@ -15,24 +15,23 @@
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite bottomLine = TFT_eSprite(&tft);
-//TFT_eSprite trainData = TFT_eSprite(&tft);
+// TFT_eSprite trainData = TFT_eSprite(&tft);
 #ifdef TFT_TOUCH
-TFT_Touch  touch = TFT_Touch(16,16,16,16); // just a placeholder, put unused GPIO
+TFT_Touch touch = TFT_Touch(16, 16, 16, 16); // just a placeholder, put unused GPIO
 #endif
 
 extern DynamicJsonDocument config;
 extern bool configUpdated;
-
 
 uint16_t SCREEN_BACKGROUND_COLOR;
 uint16_t TEXT_FG_COLOR;
 uint16_t TEXT_BG_COLOR;
 
 extern int defaultStation;
-static char buff[30];  // for local sprintf  3 chars platform name 22 chars destination
+static char buff[30]; // for local sprintf  3 chars platform name 22 chars destination
 
-#define LINE_HEIGHT (tft.height() / 8)  // total 8 lines on screen
-#define INCREMENT true // for sorting algorithm
+#define LINE_HEIGHT (tft.height() / 8) // total 8 lines on screen
+#define INCREMENT true                 // for sorting algorithm
 
 void displayInit()
 {
@@ -40,13 +39,13 @@ void displayInit()
   tft.setRotation(1); // landscape
   // extract colors from config
   // cannot express hex numbers in json so convert from hex string
-  sscanf(config["StandardColors"][(const char *)config["SCREEN_COLOR"]],"%hx",&SCREEN_BACKGROUND_COLOR);
-  sscanf(config["StandardColors"][(const char *)config["TEXT_FG_COLOR"]],"%hx",&TEXT_FG_COLOR);
-  sscanf(config["StandardColors"][(const char *)config["TEXT_BG_COLOR"]],"%hx",&TEXT_BG_COLOR);
+  sscanf(config["StandardColors"][(const char *)config["SCREEN_COLOR"]], "%hx", &SCREEN_BACKGROUND_COLOR);
+  sscanf(config["StandardColors"][(const char *)config["TEXT_FG_COLOR"]], "%hx", &TEXT_FG_COLOR);
+  sscanf(config["StandardColors"][(const char *)config["TEXT_BG_COLOR"]], "%hx", &TEXT_BG_COLOR);
   tft.setTextColor(TEXT_FG_COLOR, TEXT_BG_COLOR);
   // font 4 for startup screen, change to fancy font later
   tft.setTextFont(config["FONT_NUMBER"]);
-//  tft.setFreeFont(&London_Underground_Regular10pt7b);
+  //  tft.setFreeFont(&London_Underground_Regular10pt7b);
   tft.fillScreen(SCREEN_BACKGROUND_COLOR);
   bottomLine.createSprite(tft.width(), LINE_HEIGHT);
   bottomLine.setTextColor(TEXT_FG_COLOR, TEXT_BG_COLOR);
@@ -59,19 +58,19 @@ void displayInit()
   byte DIN = config["TouchScreenPins"]["DIN"];
   byte DOUT = config["TouchScreenPins"]["DOUT"];
   touch = TFT_Touch(DCS, DCLK, DIN, DOUT);
-  touch.setCal( config["touchCalibration"][0],config["touchCalibration"][1],config["touchCalibration"][2],config["touchCalibration"][3],
-                config["touchCalibration"][4],config["touchCalibration"][5],config["touchCalibration"][6]); // calibrated my screen
+  touch.setCal(config["touchCalibration"][0], config["touchCalibration"][1], config["touchCalibration"][2], config["touchCalibration"][3],
+               config["touchCalibration"][4], config["touchCalibration"][5], config["touchCalibration"][6]); // calibrated my screen
 #endif
 #ifdef TOUCH_SPI
   uint16_t calData[5];
-  for (int k=0;k<5;k++)
+  for (int k = 0; k < 5; k++)
     calData[k] = config["touchCalibration"][k];
   tft.setTouch(calData);
 #endif
-
 }
 
-void displayInitFinish() {
+void displayInitFinish()
+{
   // move to nicer font
   tft.setFreeFont(&London_Underground_Regular10pt7b);
 }
@@ -94,9 +93,9 @@ int compare(const void *l, const void *r)
 int rowNumber = 0;
 void displayClear()
 {
-    tft.fillScreen(SCREEN_BACKGROUND_COLOR);
-    tft.setTextColor(TEXT_FG_COLOR, TEXT_BG_COLOR);
-    rowNumber = 1;  // skip over title line
+  tft.fillScreen(SCREEN_BACKGROUND_COLOR);
+  tft.setTextColor(TEXT_FG_COLOR, TEXT_BG_COLOR);
+  rowNumber = 1; // skip over title line
 }
 
 /// @brief Check if one of the paramaters has a shortened version
@@ -105,27 +104,27 @@ void displayClear()
 /// @return Shortname
 const char *getShortName(const char *destinationName, const char *towards)
 {
-    const char *shortName = NULL;
-    // use towards if present
-    const char *longName = strlen(towards) > 0 ? towards : destinationName;
+  const char *shortName = NULL;
+  // use towards if present
+  const char *longName = strlen(towards) > 0 ? towards : destinationName;
 #ifdef DEBUG
-    Serial.printf("D %s T %s L %s\r\n", destinationName, towards, longName);
+  Serial.printf("D %s T %s L %s\r\n", destinationName, towards, longName);
 #endif
-    if (config["substitutes"].containsKey(longName))
-    {
-        shortName = config["substitutes"][longName];
+  if (config["substitutes"].containsKey(longName))
+  {
+    shortName = config["substitutes"][longName];
 #ifdef DEBUG
-        Serial.printf("long %s short %s\r\n", longName, shortName);
+    Serial.printf("long %s short %s\r\n", longName, shortName);
 #endif
-    }
-    else
-    {
-        shortName = longName;
+  }
+  else
+  {
+    shortName = longName;
 #ifdef DEBUG
-        Serial.printf("No sub %s \r\n", longName);
+    Serial.printf("No sub %s \r\n", longName);
 #endif
-    }
-    return shortName;
+  }
+  return shortName;
 }
 
 void displayItem(List<Item> *pLI)
@@ -187,6 +186,8 @@ ButtonWidget btnL = ButtonWidget(&tft); // need to be global
 ButtonWidget btnR = ButtonWidget(&tft);
 ButtonWidget btnC = ButtonWidget(&tft);
 CheckBoxWidget defaultCB = CheckBoxWidget(&tft);
+CheckBoxWidget defaultTZ = CheckBoxWidget(&tft);
+
 // Create an array of button instances to use in for() loops
 // This is more useful where large numbers of buttons are employed
 ButtonWidget *btn[] = {&btnL, &btnR, &btnC};
@@ -370,16 +371,19 @@ void initButtons()
 
   // place checkbox above buttons and to the left
   x = 10;
-  y = tft.height() - BUTTON_H - 10 - (CB_SIDE*2);
-  defaultCB.initCheckBox(x,y,CB_SIDE,TFT_WHITE,TFT_BLACK,TFT_YELLOW,TFT_BLACK,"set sta",1);
+  y = tft.height() - BUTTON_H - 10 - (CB_SIDE * 2);
+  defaultCB.initCheckBox(x, y, CB_SIDE, TFT_WHITE, TFT_BLACK, TFT_YELLOW, TFT_BLACK, "set sta", 1,config["defaultStation"] >= 0);
   defaultCB.drawCheckBox("set station as default");
+
+  defaultTZ.initCheckBox(x, y - CB_SIDE - 2, CB_SIDE, TFT_WHITE, TFT_BLACK, TFT_YELLOW, TFT_BLACK, "set TZ", 1,(bool)config["DST"]);
+  defaultTZ.drawCheckBox("Daylight Savings Time");
 }
 
 int touchHandler()
 {
   /* Create an instance of the touch screen library */
 // 1bpp Sprites are economical on memory but slower to render
-#define COLOR_DEPTH 1                              // Colour depth (1, 8 or 16 bits per pixel)
+#define COLOR_DEPTH 1 // Colour depth (1, 8 or 16 bits per pixel)
   banner.setColorDepth(COLOR_DEPTH);
   banner.createSprite(tft.width(), 20);
   banner.fillSprite(SCREEN_BACKGROUND_COLOR);
@@ -389,8 +393,9 @@ int touchHandler()
 
   // Calibrate the touch screen and retrieve the scaling factors
   initButtons();
-  STATION_LIMIT =  config["stations"].size(); // getNumberOfStations();
-  stationUpdate(0);
+  STATION_LIMIT = config["stations"].size(); // getNumberOfStations();
+  // start with current default station, if any, else 0
+  stationUpdate(config["defaultStation"] < 0 ? 0 : config["defaultStation"]);
 
   uint32_t scanTime = millis();
   // loop until center button clicked
@@ -406,7 +411,7 @@ int touchHandler()
       bool pressed = touch.Pressed();
 #endif
 #ifdef TOUCH_SPI
-  // Pressed will be set true is there is a valid touch on the screen
+      // Pressed will be set true is there is a valid touch on the screen
       bool pressed = tft.getTouch(&t_x, &t_y);
 #endif
       scanTime = millis();
@@ -430,14 +435,24 @@ int touchHandler()
           btn[b]->releaseAction();
         }
       }
-      if (pressed && defaultCB.contains(t_x,t_y))
+      if (pressed && defaultCB.contains(t_x, t_y))
+      {
         defaultCB.press();
+        configUpdated = true;
+      }
+
+      if (pressed && defaultTZ.contains(t_x, t_y))
+      {
+        defaultTZ.press();
+        configUpdated = true;
+      }
     }
   }
-  if (defaultCB.checked()) {
+  if (defaultCB.checked())
     config["defaultStation"] = stationIndex;
-    configUpdated = true;
-  }
+  else
+    config["defaultStation"] = -1;
+  config["DST"] = (bool)defaultTZ.checked();
   return stationIndex;
 }
 
@@ -452,17 +467,17 @@ void displayBottomLine(const char *text, bool centered)
   bottomLine.pushSprite(0, 7 * LINE_HEIGHT);
 }
 
-
 int selectDefaultStation()
 {
   int selected = config["defaultStation"];
 #ifdef TFT_TOUCH
   bool pressed = touch.Pressed();
-#elif defined (TOUCH_SPI)
-  uint16_t x,y;
-  bool pressed = tft.getTouch(&x,&y);
+#elif defined(TOUCH_SPI)
+  uint16_t x, y;
+  bool pressed = tft.getTouch(&x, &y);
 #endif
-  if (pressed || selected == -1) {
+  if (pressed || selected == -1)
+  {
     selected = touchHandler();
     addLine(0, 1, "Selected", true);
   }
