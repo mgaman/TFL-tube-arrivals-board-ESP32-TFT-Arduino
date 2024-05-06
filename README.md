@@ -162,3 +162,6 @@ new default station just press on the screen at boot time and keep pressing unti
 ## 0.1.5
 - Added a checkbox in the Select Station screen to set, or unset, the Daylight Savings Time flag in *config.json*. This involved modifying the *CheckBoxWidget* code to set the initial setting of Checked/Not Checked.
 - Renamed *WiFiAr..cpp* to *WiFiAr.cpp*.
+## 0.1.6
+- Fixed Issue #1
+

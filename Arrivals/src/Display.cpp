@@ -136,26 +136,28 @@ void displayItem(List<Item> *pLI)
     for (int j = 0; j < config["stations"][defaultStation]["rowsPerPlatform"]; j++)
     {
       Item *pI = pLI->getPointer(j);
-      // Arrival time round down seconds to minutes
-      int aTime = pI->getArrivalTime() / 60;
-      const char *dest = getShortName(pI->getDestination(), pI->getTowards());
-      if (dest == NULL)
-        dest = (char *)pI->getDestination();
+      if (pI) {   // Issue #1
+        // Arrival time round down seconds to minutes
+        int aTime = pI->getArrivalTime() / 60;
+        const char *dest = getShortName(pI->getDestination(), pI->getTowards());
+        if (dest == NULL)
+          dest = (char *)pI->getDestination();
 
-      sprintf(buff, "%d %s", pI->getPlatform(), dest);
-      addLine(0, rowNumber, buff, false);
-      sprintf(buff, "%2d", aTime);
-      addLine(tft.width() - tft.textWidth(buff) - 3, rowNumber, buff, false);
+        sprintf(buff, "%d %s", pI->getPlatform(), dest);
+        addLine(0, rowNumber, buff, false);
+        sprintf(buff, "%2d", aTime);
+        addLine(tft.width() - tft.textWidth(buff) - 3, rowNumber, buff, false);
 #ifdef DEBUG
-      //      Serial.printf("platform %d ETA %d dest %s\r\n",pI->getPlatform(),pI->getArrivalTime(),pI->getDestination());
-      Serial.print("platform ");
-      Serial.print(pI->getPlatform());
-      Serial.print(" ETA ");
-      Serial.print(pI->getArrivalTime());
-      Serial.print(" dest ");
-      Serial.println(pI->getDestination());
+        //      Serial.printf("platform %d ETA %d dest %s\r\n",pI->getPlatform(),pI->getArrivalTime(),pI->getDestination());
+        Serial.print("platform ");
+        Serial.print(pI->getPlatform());
+        Serial.print(" ETA ");
+        Serial.print(pI->getArrivalTime());
+        Serial.print(" dest ");
+        Serial.println(pI->getDestination());
 #endif
-      rowNumber++;
+        rowNumber++;
+      }
     }
   }
 }
