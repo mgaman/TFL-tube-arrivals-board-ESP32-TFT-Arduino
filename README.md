@@ -83,12 +83,12 @@ If *true* then current time is displayed is GMT+1, else GMT.
 # First Time Use
 This project was developed under Visual Studio Code using the PlatformIO extension. It is assumed that you know how to install and use this IDE.  
 After cloning the project, PlattormIO springs into action to do its magic. This includes loading all the necessary compilation tools used by the declared platform and libraries requested. The libraries have to modified to work for the project.  
-Libraries are loaded to the path <b>Arrivals/.pio/libdeps/board_name</b>. In this project you will see from platform.io that my *board_name* is *esp32dev*.  Your board may differ.  
+Libraries are loaded to the path <b>Arrivals/.pio/libdeps/board_name</b>. In this project you will see from platform.ini that my *board_name* is *esp32dev*.  Your board may differ.  
 Edit the *Arrivals/data/config.json* file. You may enter the WiFi credentials of your Access Point here or later [via this](#web-based-interface-for-wifi-credentials). Also add your station(s) to the *stations* section.  
 Upload to your device as described [here](#updating-the-configjson-file).    
 It is essential to edit the file correctly as JSON is intolerant of mistakes such as missing commas, quote marks and matching brackets. Before committing your file to the SPIFFS check its correctness. There are lots of validation sites like [this one](https://jsonlint.com/). Embedded comments will cause a problem but [this one](https://jsonformatter.org/) can delete comments before validation.  
 ## TFT_eSPI
-I use the *TFT_eSPI* library from *https://github.com/Bodmer/TFT_eSPI*. Prior to using the library you have to tell which graphics chip is in use and how it is connected. This is done by editing the <b>Arrivals/.pio/libdeps/esp32dev/TFT_eSPI/User_Setup_Select.h</b> file and uncommenting the line appropriate to your hardware. Note I put a compile time macro in the <b>build_flags</b> section of <b>platform.io</b> to select the appropriate file.
+I use the *TFT_eSPI* library from *https://github.com/Bodmer/TFT_eSPI*. Prior to using the library you have to tell which graphics chip is in use and how it is connected. This is done by editing the <b>Arrivals/.pio/libdeps/esp32dev/TFT_eSPI/User_Setup_Select.h</b> file and uncommenting the line appropriate to your hardware. Note I put a compile time macro in the <b>build_flags</b> section of <b>platformio.ini</b> to select the appropriate file.
 For my 2 boards I had to create new files in <b>Arrivals/.pio/libdeps/esp32dev/User_Setups/Setup400_IL19341_ESP32_HSPI.h</b> and  <b>Arrivals/.pio/libdeps/esp32dev/User_Setups/Setup401_St7789_ESP32_HSPI.h</b> and reference it in <b>Arrivals/.pio/libdeps/esp32dev/TFT_eSPI/User_Setup_Select.h</b>.  
 Copies of the files are in the <b>Arrivals/extras</b> folder.  
 NOTE: My experience may not match your choice of board.
@@ -98,7 +98,7 @@ After installing this library there is a *main.cpp* source file in <b>Arrivals/.
 This section is NOT applicable to a board where Touch is accessed via SPI. In that case you will need to replace all my touch oriented code by your own code.  
 While the *TFT_eSPI* library contains support for a touch screen it is not applicable to my board as the touch sensor is not wired to be accessed via SPI. Accordingly I have added a facility to *config.json* for setting the numbers of the IO pins.  
 Note the calibration line in *Display.cpp line 60*. Those values were determined by running the *TFT_Touch_Calibrate_v2* example in the library. You will need to do the same for your hardware.  
-In the <b>build_flags</b> section of <b>platform.io</b> I added a compile time macro to select the desired touch support library.
+In the <b>build_flags</b> section of <b>platformio.ini</b> I added a compile time macro to select the desired touch support library.
 # Compilation
 This is a Visual Studio, Platform IO project where compilation options are contained in the *platformio.ini* file, section *build_flags*.  
 - CONFIG_SIZE=nnn FILTER_SIZE=nnn DOC_SIZE=nnn. These affect memory allocated for JSON objects config,filter and doc. The default values here should suffice. The only time you probably need to make a change is for DOC. My default value of 8000 is sufficient for busy Kings Cross with 8 platforms and 5 lines, but there may be a station out there that needs more. To make an estimate get a block of JSON from a station and visit [here](https://arduinojson.org/v6/assistant/#/step1). This will give an indications of the space needed for unfiltered data. In my experience filtering reduces that by a factor of 8.
@@ -106,7 +106,7 @@ This is a Visual Studio, Platform IO project where compilation options are conta
 - DEBUG Turn on general debugging data. Hopefully not needed.
 # Updating the config.json file
 The classic tool for reading and writing data between an ESP32 and computer is *esptool.py*, however this tool deals with blocks of flash and is not interested whether that block of flash is executable code or SPIFFS data.  
-In Platform.IO *esptool.py* is encapsulated in a user friendly interface to make it easy to create an SPIFFS file system image and upload that image to the ESP32 (but not download it).  
+In PlatformIO *esptool.py* is encapsulated in a user friendly interface to make it easy to create an SPIFFS file system image and upload that image to the ESP32 (but not download it).  
 To modify *config.json* and upload to the ESP32, first edit the file then click on the <img width="20px" src="images/platformiobrown.svg"> *PlatformIO* icon to the left of the screen. This displays a range of *Project Tasks*. Click on *Build Filesystem Image* to make a copy of the SPIFFS file system then click on *Upload File System Image* to copy, via USB, to the ESP32 device.  Note that any window currently engaging the USB Serial device must be closed first.
 # Dependencies
 - I made use of the delightful [London Underground](https://github.com/petykowski/London-Underground-Dot-Matrix-Typeface) dot matrix font for displaying data. Note that one cannot use the ttf files directly. First they must be converted to a bitmap image via the convertor [here](https://rop.nl/truetype2gfx/).  
@@ -141,6 +141,13 @@ Select the desired SSID, add its password and hit the <b>Save</b> button.<br><br
 If successful, the credentials are saved to the <i>config.json</i> file and can be used in future connections.<br><br>  
 <p align="center"><img width="50%" src="images/IMG_0070.jpg"></p>
 
+## Managing ESP32 Flash
+The code for this app assumes that the <b>config.json</b> file is located in an SPIFFS partition.  
+This is <b>NOT</b> a comprehensive guide to ESP32 Flash management, there is plenty of that on the web. Here is just what is needed for this project.  
+To interrogate the current partitions of your ESP32 visit [ESPConnect](https://thelastoutpostworkshop.github.io/ESPConnect/).
+1. Create a <b>partitions.csv</b> defining how to allocate the flash on your device. [ESP32 Partition Builder](https://thelastoutpostworkshop.github.io/ESP32PartitionBuilder) is the ideal place to do that. Save the file in the same folder as <b>platformio.ini</b>
+2. Add the line <b>board_build.partitions = partitions.csv</b> to <b>platformio.ini</b>
+
 ## ToDo
 - Implement a web interface for updating station data.  
 # Version History
@@ -164,4 +171,6 @@ new default station just press on the screen at boot time and keep pressing unti
 - Renamed *WiFiAr..cpp* to *WiFiAr.cpp*.
 ## 0.1.6
 - Fixed Issue #1
+## 0.1.7
+- Code unchanged but I added a section [here](#managing-esp32-flash) on how to manage the flash memory of the ESP32
 
